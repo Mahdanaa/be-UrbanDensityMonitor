@@ -37,6 +37,10 @@ jobs:
             
             cd docker
             docker compose down
+            
+            # Hentikan paksa container lama yang mungkin masih menyala di port 8000 (karena beda folder)
+            echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker ps -q --filter "publish=8000" | xargs -r sudo docker rm -f
+            
             # Bersihkan sistem docker lama agar disk tidak penuh
             echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker system prune -af
             docker compose up -d --build
