@@ -1,25 +1,24 @@
 import cv2
+import sys
 from ultralytics import YOLO
 
-def test_yolo():
-    print("🔥 Memanaskan mesin YOLOv8...")
+def test_yolo(stream_url):
+    print("🔥 Memanaskan mesin YOLOv8 di GPU (CUDA)...")
 
-    # Load model YOLOv8 (Otomatis download yolov8n.pt kalau belum ada)
     model = YOLO("yolov8n.pt")
+    model.to('cuda')
 
-    # URL CCTV Semarang (Contoh aja buat ngetes)
-    stream_url = "https://livepantau.semarangkota.go.id/a875df34-d235-4760-8c7f-2705fb155807/index.m3u8"
-
-    print(f"📡 Mencoba konek ke: {stream_url}")
     cap = cv2.VideoCapture(stream_url)
 
     if not cap.isOpened():
-        print("❌ Gagal buka stream CCTV! (Mungkin token expired)")
+        print("❌ Gagal buka stream CCTV!")
         return
 
-    print("✅ Berhasil buka CCTV! Mulai deteksi...")
+    print("✅ Berhasil buka CCTV! Mulai deteksi pakai Frame Skipping...")
 
     frame_count = 0
+    skip_rate = 5
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -28,27 +27,25 @@ def test_yolo():
 
         frame_count += 1
 
-        # Biar gak berat, kita proses 1 frame aja buat bukti!
-        if frame_count == 1:
-            print("📸 Frame berhasil ditangkap! Menganalisis...")
+        if frame_count % skip_rate == 0:
+            print(f"📸 Menganalisis Frame ke-{frame_count} di GPU...")
 
-            # Deteksi: 0=Person, 2=Car, 3=Motor, 5=Bus, 7=Truck
-            results = model(frame, classes=[0, 2, 3, 5, 7], verbose=False)
+            results = model(frame, classes=[0, 2, 3, 5, 7], verbose=False, device='cuda')
 
-            # Ekstrak hasil hitungan
             boxes = results[0].boxes
-            print(f"🎯 KETEMU {len(boxes)} OBJEK DI FRAME INI!")
+            print(f"🎯 KETEMU {len(boxes)} OBJEK DI FRAME {frame_count}!")
 
-            for box in boxes:
-                class_id = int(box.cls[0])
-                class_name = model.names[class_id]
-                conf = float(box.conf[0])
-                print(f"  -> {class_name} (Yakin: {conf*100:.1f}%)")
-
-            break # Selesai, kita cuma butuh 1 bukti frame!
+            if frame_count >= 20:
+                break
 
     cap.release()
-    print("🏁 Tes Selesai!")
+    print("🏁 Tes Selesai! Laptop aman nggak ngebul.")
 
 if __name__ == "__main__":
-    test_yolo()
+    if len(sys.argv) > 1:
+        target_url = sys.argv[1]
+    else:
+        target_url = "https://livepantau.semarangkota.go.id/a875df34-d235-4760-8c7f-2705fb155807/index.m3u8"
+        print(f"⚠️ URL tidak diberikan via parameter, menggunakan default: {target_url}")
+    
+    test_yolo(target_url)
