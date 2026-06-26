@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }} # Biasanya port 22
-          command_timeout: 30m
+          command_timeout: 60m
           script: |
             if [ -d /var/www/be-UrbanDensityMonitor/.git ]; then
               cd /var/www/be-UrbanDensityMonitor
@@ -37,4 +37,6 @@ jobs:
             
             cd docker
             docker compose down
+            # Bersihkan sistem docker lama agar disk tidak penuh
+            echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker system prune -af
             docker compose up -d --build
