@@ -21,8 +21,15 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }} # Biasanya port 22
           script: |
-            cd /var/www/be-UrbanDensityMonitor
-            git pull origin main
+            if [ -d /var/www/be-UrbanDensityMonitor/.git ]; then
+              cd /var/www/be-UrbanDensityMonitor
+              git pull origin main
+            else
+              mkdir -p /var/www
+              git clone https://github.com/Mahdanaa/be-UrbanDensityMonitor.git /var/www/be-UrbanDensityMonitor
+              cd /var/www/be-UrbanDensityMonitor
+            fi
+            
             cd docker
             docker compose down
             docker compose up -d --build
