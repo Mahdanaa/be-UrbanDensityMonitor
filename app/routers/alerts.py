@@ -54,6 +54,8 @@ async def get_alerts(
 @router.patch("/{alert_id}/read")
 async def mark_alert_read(alert_id: str, user_info: dict = Depends(verify_jwt)): # 🔒 PINTU DIGEMBOK!
     pool = get_db_pool()
+    if not pool:
+        raise HTTPException(status_code=500, detail="Database belum siap!")
     query = "UPDATE alerts SET is_read = true WHERE id = $1"
     await pool.execute(query, alert_id)
     return {"message": f"✅ Alert {alert_id} berhasil ditandai sudah dibaca"}

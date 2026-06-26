@@ -4,3 +4,7 @@ ultralytics
 opencv-python-headless
 scikit-learn
 asyncpg
+python-dotenv
+PyJWT[crypto]
+numpy
+torch

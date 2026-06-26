@@ -50,6 +50,8 @@ async def get_streams(user_info: dict = Depends(verify_jwt)):
 @router.post("/")
 async def add_stream(stream: StreamCreate, user_info: dict = Depends(verify_jwt)):
     pool = get_db_pool()
+    if not pool:
+        raise HTTPException(status_code=500, detail="Database belum siap!")
     query = """
     INSERT INTO streams (location_name, stream_url, stream_type)
     VALUES ($1, $2, $3) RETURNING id
@@ -64,6 +66,8 @@ async def add_stream(stream: StreamCreate, user_info: dict = Depends(verify_jwt)
 @router.delete("/{stream_id}")
 async def delete_stream(stream_id: str, user_info: dict = Depends(verify_jwt)):
     pool = get_db_pool()
+    if not pool:
+        raise HTTPException(status_code=500, detail="Database belum siap!")
     query = "DELETE FROM streams WHERE id = $1"
     try:
         await pool.execute(query, stream_id)

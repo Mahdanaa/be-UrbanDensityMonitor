@@ -1,6 +1,10 @@
 import asyncpg
 import os
+import logging
 from dotenv import load_dotenv
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -10,7 +14,7 @@ pool = None
 
 async def init_db_pool():
     global pool
-    print("🗄️ Menghubungkan ke Supabase (asyncpg)...")
+    logger.info("🗄️ Menghubungkan ke Supabase (asyncpg)...")
     try:
         pool = await asyncpg.create_pool(
             dsn=DATABASE_URL,
@@ -18,15 +22,15 @@ async def init_db_pool():
             max_size=10,
             statement_cache_size=0
         )
-        print("✅ Database Supabase Terhubung!")
+        logger.info("✅ Database Supabase Terhubung!")
     except Exception as e:
-        print(f"❌ Gagal konek ke DB: {e}")
+        logger.error(f"❌ Gagal konek ke DB: {e}")
 
 async def close_db_pool():
     global pool
     if pool:
         await pool.close()
-        print("🛑 Koneksi Database ditutup.")
+        logger.info("🛑 Koneksi Database ditutup.")
 
 def get_db_pool():
     return pool

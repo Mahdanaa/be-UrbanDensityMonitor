@@ -1,0 +1,15 @@
+venv/
+env/
+.venv/
+.env
+__pycache__/
+*.pyc
+.git/
+.gitignore
+test_ws.html
+train_model.py
+yolov8l.pt
+yolov8m.pt
+yolov8n.pt
+yolo11n.pt
+*.md
