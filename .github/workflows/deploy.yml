@@ -31,6 +31,9 @@ jobs:
               cd /var/www/be-UrbanDensityMonitor
             fi
             
+            # Buat file .env secara otomatis dari GitHub Secrets
+            echo "${{ secrets.APP_ENV }}" > /var/www/be-UrbanDensityMonitor/.env
+            
             cd docker
             docker compose down
             docker compose up -d --build
