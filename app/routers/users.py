@@ -1,11 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends # <-- Tambah Depends
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
 from app.db.asyncpg_client import get_db_pool
-from app.auth.jwt_handler import verify_jwt # <-- Panggil Satpam
-
+from app.auth.jwt_handler import verify_jwt
 router = APIRouter(
     prefix="/api/users",
     tags=["User Management (Admin)"]
@@ -16,20 +15,15 @@ class UserUpdate(BaseModel):
     role: Optional[str] = None
     is_active: Optional[bool] = None
 
-# 👮‍♂️ Alat validasi khusus: Cek apakah user info ini rolenya Admin di DB
 async def kuasai_akses_admin(user_info: dict, pool):
-    user_id = user_info.get("sub") # Ambil ID User dari JWT
+    user_id = user_info.get("sub")
     role = await pool.fetchval("SELECT role FROM users WHERE id = $1", user_id)
     if role != "admin":
         raise HTTPException(status_code=403, detail="⛔ Akses ditolak! Fitur ini khusus untuk Admin.")
-
-# 1. Ambil Semua User (Admin Only)
 @router.get("/")
 async def get_all_users(user_info: dict = Depends(verify_jwt)):
     pool = get_db_pool()
     if not pool: raise HTTPException(status_code=500, detail="Database belum siap!")
-
-    # Cek status ke-admin-an
     await kuasai_akses_admin(user_info, pool)
 
     query = "SELECT id, email, full_name, role, is_active, created_at FROM users ORDER BY created_at DESC"
@@ -44,7 +38,6 @@ async def get_all_users(user_info: dict = Depends(verify_jwt)):
 
     return {"data": user_list, "total": len(user_list)}
 
-# 2. Edit User (Admin Only)
 @router.put("/{user_id}")
 async def update_user(user_id: str, user_data: UserUpdate, user_info: dict = Depends(verify_jwt)):
     pool = get_db_pool()
@@ -62,7 +55,6 @@ async def update_user(user_id: str, user_data: UserUpdate, user_info: dict = Dep
         raise HTTPException(status_code=404, detail="User tidak ditemukan!")
     return {"message": f"✅ Data user {user_id} berhasil diperbarui!"}
 
-# 3. Hapus User (Admin Only)
 @router.delete("/{user_id}")
 async def delete_user(user_id: str, user_info: dict = Depends(verify_jwt)):
     pool = get_db_pool()

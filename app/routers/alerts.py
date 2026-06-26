@@ -1,10 +1,9 @@
-from fastapi import APIRouter, Query, HTTPException, Depends # <-- Tambah Depends
+from fastapi import APIRouter, Query, HTTPException, Depends
 from typing import Optional
 from datetime import datetime
 
 from app.db.asyncpg_client import get_db_pool
-from app.auth.jwt_handler import verify_jwt # <-- Panggil Satpam
-
+from app.auth.jwt_handler import verify_jwt
 router = APIRouter(
     prefix="/api/alerts",
     tags=["Alerts & Notifications"]
@@ -15,7 +14,7 @@ async def get_alerts(
     stream_id: Optional[str] = Query(None, description="Filter alert CCTV tertentu"),
     is_read: Optional[bool] = Query(None, description="Filter yang belum/sudah dibaca"),
     limit: int = Query(20, description="Maksimal data alert"),
-    user_info: dict = Depends(verify_jwt) # 🔒 PINTU DIGEMBOK!
+    user_info: dict = Depends(verify_jwt)
 ):
     pool = get_db_pool()
     if not pool:
@@ -52,7 +51,7 @@ async def get_alerts(
     return {"data": alert_list}
 
 @router.patch("/{alert_id}/read")
-async def mark_alert_read(alert_id: str, user_info: dict = Depends(verify_jwt)): # 🔒 PINTU DIGEMBOK!
+async def mark_alert_read(alert_id: str, user_info: dict = Depends(verify_jwt)):
     pool = get_db_pool()
     if not pool:
         raise HTTPException(status_code=500, detail="Database belum siap!")

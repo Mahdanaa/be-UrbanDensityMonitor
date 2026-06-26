@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Query, HTTPException, Depends # <-- Tambah Depends
+from fastapi import APIRouter, Query, HTTPException, Depends
 from typing import Optional
 from datetime import datetime
 
 from app.db.asyncpg_client import get_db_pool
-from app.auth.jwt_handler import verify_jwt # <-- Panggil Satpam
+from app.auth.jwt_handler import verify_jwt
 
 router = APIRouter(
     prefix="/api/history",
@@ -15,7 +15,7 @@ async def get_history(
     stream_id: Optional[str] = Query(None, description="Filter berdasarkan ID CCTV"),
     limit: int = Query(50, description="Jumlah maksimal data"),
     offset: int = Query(0, description="Mulai dari urutan ke berapa"),
-    user_info: dict = Depends(verify_jwt) # 🔒 PINTU DIGEMBOK!
+    user_info: dict = Depends(verify_jwt)
 ):
     pool = get_db_pool()
     if not pool:
