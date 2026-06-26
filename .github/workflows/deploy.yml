@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }} # Biasanya port 22
-          command_timeout: 60m
+          command_timeout: 120m
           script: |
             if [ -d /var/www/be-UrbanDensityMonitor/.git ]; then
               cd /var/www/be-UrbanDensityMonitor
@@ -41,6 +41,6 @@ jobs:
             # Hentikan paksa container lama yang mungkin masih menyala di port 8000 (karena beda folder)
             echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker ps -q --filter "publish=8000" | xargs -r sudo docker rm -f
             
-            # Bersihkan sistem docker lama agar disk tidak penuh
-            echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker system prune -af
+            # Hanya hapus image yang gagal/menggantung agar CACHE instalasi PyTorch tidak terhapus
+            echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker image prune -f
             docker compose up -d --build
