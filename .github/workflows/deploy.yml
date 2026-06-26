@@ -20,7 +20,9 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: ${{ secrets.SERVER_PORT }} # Biasanya port 22
-          # Sesuaikan PATH_TO_PROJECT dengan direktori project di VPS Anda (contoh: /var/www/urban-density-backend)
           script: |
-            cd ${{ secrets.PATH_TO_PROJECT }}/docker
-            ./deploy.sh
+            cd /var/www/be-UrbanDensityMonitor
+            git pull origin main
+            cd docker
+            docker compose down
+            docker compose up -d --build
