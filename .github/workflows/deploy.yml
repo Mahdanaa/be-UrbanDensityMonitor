@@ -25,8 +25,8 @@ jobs:
               cd /var/www/be-UrbanDensityMonitor
               git pull origin main
             else
-              sudo mkdir -p /var/www
-              sudo chown -R $USER:$USER /var/www
+              echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S mkdir -p /var/www
+              echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S chown -R $USER:$USER /var/www
               git clone https://github.com/Mahdanaa/be-UrbanDensityMonitor.git /var/www/be-UrbanDensityMonitor
               cd /var/www/be-UrbanDensityMonitor
             fi
