@@ -38,8 +38,8 @@ jobs:
             cd docker
             docker compose down
             
-            # Hentikan paksa SEMUA container yang sedang berjalan (termasuk dari deploy lama/Coolify)
-            echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S sh -c 'docker ps -q | xargs -r docker rm -f' || true
+            # Hentikan container lama yang masih menyandera port (hanya container milik kita)
+            echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker rm -f urban_density_backend 2>/dev/null || true
             
             # Hanya hapus image yang gagal/menggantung agar CACHE instalasi PyTorch tidak terhapus
             echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker image prune -f
