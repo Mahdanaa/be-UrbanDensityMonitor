@@ -3,12 +3,12 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main # Workflow akan berjalan otomatis setiap ada push ke branch main
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -19,7 +19,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: ${{ secrets.SERVER_PORT }} # Biasanya port 22
+          port: ${{ secrets.SERVER_PORT }}
           command_timeout: 120m
           script: |
             if [ -d /var/www/be-UrbanDensityMonitor/.git ]; then
@@ -31,16 +31,13 @@ jobs:
               git clone https://github.com/Mahdanaa/be-UrbanDensityMonitor.git /var/www/be-UrbanDensityMonitor
               cd /var/www/be-UrbanDensityMonitor
             fi
-            
-            # Buat file .env secara otomatis dari GitHub Secrets
+
             echo "${{ secrets.APP_ENV }}" > /var/www/be-UrbanDensityMonitor/.env
-            
+
             cd docker
             docker compose down
-            
-            # Hentikan container lama yang masih menyandera port (hanya container milik kita)
+
             echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker rm -f urban_density_backend 2>/dev/null || true
-            
-            # Hanya hapus image yang gagal/menggantung agar CACHE instalasi PyTorch tidak terhapus
+
             echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker image prune -f
             docker compose up -d --build

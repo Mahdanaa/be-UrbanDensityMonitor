@@ -10,7 +10,6 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Kami me-mount model agar saat update model tidak perlu build ulang (opsional)
       - ../yolov8n.pt:/app/yolov8n.pt:ro
       - ../yolov8s.pt:/app/yolov8s.pt:ro
       - ../yolov8m.pt:/app/yolov8m.pt:ro
